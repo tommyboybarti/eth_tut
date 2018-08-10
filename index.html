@@ -26,14 +26,35 @@
   </div>
 
   <script>
-    if (typeof web3!== 'undefined') {
+    const config = require('./config.js')
+
+    if (typeof web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
     } else {
-      web3 = new Web3(new Web3.provider.HttpProvider("http://localhost:8545/"))
+      web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
-    
-    // choose first of 10 possible account provided by testrpc
+
+    // default account method: choose first of 10 possible accounts provided by testrpc
     web3.eth.defaultAccount = web3.eth.accounts[0];
+    // eth contract method 
+    // ABI = application binary interface 
+    const PartyboyContract = web3.eth.contract(config.smContractSet);
+    // define contract address
+    const Partyboy = PartyboyContract.at(config.smContract);
+    console.log(Partyboy);
+
+    Partyboy.getInstructor(function(error, result) {
+      if (!error) {
+        document.getElementById('instructor').html(result[0]+' ('+result[1]+' years old)');
+      } else {
+        console.log(error);
+      }
+    });
+    
+    document.getElementById('button').click(function() {
+      Partyboy.setInstructor(document.getElementById('name').val(), document.getElementById('age').val());
+    });
+
   </script>
 </body>
 </html>
